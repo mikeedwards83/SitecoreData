@@ -27,6 +27,7 @@ namespace SitecoreData.DataProviders.MongoDB
             Items.EnsureIndex(IndexKeys.Ascending(new[] {"ParentId"}));
             Items.EnsureIndex(IndexKeys.Ascending(new[] {"TemplateId"}));
             Items.EnsureIndex(IndexKeys.Ascending(new[] { "WorkflowStateId" }));
+            Items.EnsureIndex(IndexKeys.Ascending(new[] { "Key" }));
 
             PublishQueue = Db.GetCollection<PublishItem>("publishQueue", SafeMode);
             PublishQueue.EnsureIndex(IndexKeys.Ascending(new[] { "Date" }));
@@ -63,6 +64,7 @@ namespace SitecoreData.DataProviders.MongoDB
                            {
                                Id = id,
                                Name = name,
+                               Key = name.ToLowerInvariant(),
                                TemplateId = templateId,
                                ParentId = parentId
                            };
@@ -171,17 +173,78 @@ namespace SitecoreData.DataProviders.MongoDB
                 query = query.Substring(5);
                 var parts = query.Split(new []{'/'}, StringSplitOptions.RemoveEmptyEntries);
 
-                string name = parts.Last().Substring(1, parts.Length - 2);
+                var parentKeys = parts.Reverse().Skip(1);
 
-                var mongoDb = Query.EQ("Name", name);
+                var ids = QuerySimple(parts.Last());
 
-                var results = Items.Find(mongoDb).Select(x => new ID(x.Id));
-                return IDList.Build(results.ToArray());
+                foreach(ID id in ids)
+                {
+                    var item = GetItem(id.Guid);
+                    if(CheckParent(item , parentKeys))
+                    {
+                        return IDList.Build(new []{id});
+                    }
+                    
+                }
+
+
             }
+
+
+
+
+            
             
 
             //standard query
-            throw new NotImplementedException();
+           throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// checks a series of parent items
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="parentKeys"></param>
+        /// <returns></returns>
+        public bool CheckParent(ItemDto item, IEnumerable<string> parentKeys)
+        {
+            //catch the sitecore root item
+            if (item.ParentId == Guid.Empty) return true;
+            
+            var parent = GetItem(item.ParentId);
+
+            if (parent.Key == CleanKey(parentKeys.First()))
+            {
+               return  CheckParent(parent, parentKeys.Skip(1));
+            }
+            else return false;
+        }
+
+        /// <summary>
+        /// Will query for an item based on the key
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public IDList QuerySimple(string key)
+        {
+
+            key = CleanKey(key);
+
+            var mongoDb = Query.EQ("Key", key);
+
+            var results = Items.Find(mongoDb).Select(x => new ID(x.Id));
+
+            return IDList.Build(results.ToArray());
+
+        }
+
+        public static string CleanKey(string key)
+        {
+            if (key.StartsWith("#") && key.EndsWith("#"))
+            {
+                key = key.Substring(1, key.Length - 2);
+            }
+            return key;
         }
     }
 }

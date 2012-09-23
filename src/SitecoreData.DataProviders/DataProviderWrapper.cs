@@ -307,7 +307,7 @@ namespace SitecoreData.DataProviders
             if (changes.HasPropertiesChanged)
             {
                 current.Name = StringUtil.GetString(changes.GetPropertyValue("name"), itemDefinition.Name);
-
+                current.Key = current.Name.ToLowerInvariant();
                 var templateId = MainUtil.GetObject(changes.GetPropertyValue("templateid"), itemDefinition.TemplateID) as ID;
                 current.TemplateId = templateId != ID.Null ? templateId.ToGuid() : Guid.Empty;
 

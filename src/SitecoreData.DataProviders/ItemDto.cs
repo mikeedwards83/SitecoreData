@@ -13,6 +13,7 @@ namespace SitecoreData.DataProviders
         public string Name { get; set; }
         public Guid ParentId { get; set; }
         public Guid WorkflowStateId { get; set; }
+        public string Key { get; set; }
 
         public List<FieldDto> FieldValues
         {
