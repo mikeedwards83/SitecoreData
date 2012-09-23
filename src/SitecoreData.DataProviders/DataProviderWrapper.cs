@@ -13,6 +13,7 @@ using Sitecore.Data.Managers;
 using Sitecore.Globalization;
 using Sitecore.Reflection;
 using Version = Sitecore.Data.Version;
+using System.Collections;
 
 namespace SitecoreData.DataProviders
 {
@@ -22,6 +23,8 @@ namespace SitecoreData.DataProviders
         private readonly long _prefetchCacheSize = Settings.Caching.DefaultDataCacheSize;
         private Cache _prefetchCache;
         private DataProviderBase _provider;
+
+        public LanguageCollection Languages { get; private set; }
 
         public DataProviderWrapper(string connectionStringName, string implementationType)
         {
@@ -295,6 +298,12 @@ namespace SitecoreData.DataProviders
                 return false;
             }
 
+
+            //nothing has changed
+            if (!changes.HasFieldsChanged && !changes.HasPropertiesChanged)
+                return false;
+
+
             if (changes.HasPropertiesChanged)
             {
                 current.Name = StringUtil.GetString(changes.GetPropertyValue("name"), itemDefinition.Name);
@@ -355,10 +364,16 @@ namespace SitecoreData.DataProviders
 
                
 
-                Provider.WritableProvider.Store(current);
             }
+            Provider.WritableProvider.Store(current);
 
             return true;
+        }
+
+        public override IDList SelectIDs(string query, CallContext context)
+        {
+            
+            return base.SelectIDs(query, context);
         }
 
         public override int AddVersion(ItemDefinition itemDefinition, VersionUri baseVersion, CallContext context)
@@ -431,6 +446,77 @@ namespace SitecoreData.DataProviders
             }
             else return new DataUri[]{};
         }
+
+        public override bool AddToPublishQueue(ID itemID, string action, DateTime date, CallContext context)
+        {
+            // this.Api.Execute(" INSERT INTO {0}PublishQueue{1} (     {0}ItemID{1}, {0}Language{1}, {0}Version{1}, {0}Date{1}, 
+            // {0}Action{1}   )   VALUES(     {2}itemID{3}, {2}language{3}, {2}version{3}, {2}date{3}, {2}action{3}   )", (object)"itemID", 
+            // (object)itemID, (object)"language", (object)"*", (object)"version", (object)0, (object)"date", (object)date, (object)"action",
+            // (object)action);
+
+            PublishItem item = new PublishItem();
+            item.Id = itemID.Guid;
+            item.Language = "*";
+            item.Version = 0;
+            item.Date = date;
+            item.Action = action;
+
+            Provider.WritableProvider.AddToPublishQueue(item);
+
+            return true;
+        }
+
+        public override bool CleanupPublishQueue(DateTime to, CallContext context)
+        {
+            Provider.WritableProvider.CleanUpPublishQueue(to);
+            return true;
+        }
+
+        public override IDList GetPublishQueue(DateTime from, DateTime to, CallContext context)
+        {
+            var items = Provider.WritableProvider.GetPublishQueue(from, to);
+
+            Hashtable hashtable = new Hashtable();
+            IDList list = new IDList();
+
+            foreach (var item in items)
+            {
+                if (hashtable.ContainsKey(item.Id))
+                    continue;
+
+                hashtable[item.Id] = string.Empty;
+
+                list.Add(new ID(item.Id));
+            }
+
+
+            return list;
+        }
+        public override LanguageCollection GetLanguages(CallContext context)
+        {
+            if (this.Languages == null) this.Languages = LoadLanguages();
+
+            return Languages;
+        }
+
+        public LanguageCollection LoadLanguages()
+        {
+            var languages = Provider.GetItemsByTemplate(TemplateIDs.Language.Guid);
+
+            LanguageCollection languageCollection = new LanguageCollection();
+
+            foreach (var language in languages.Where(x=>!string.IsNullOrEmpty(x.Name)))
+            {
+                Language result;
+                if (Language.TryParse(language.Name, out result) && !languageCollection.Contains(result))
+                {
+                    result.Origin.ItemId = new ID(language.Id);
+                    languageCollection.Add(result);
+                }
+            }
+            return languageCollection;
+        }
+      
 
         
     }

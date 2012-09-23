@@ -8,6 +8,8 @@ namespace SitecoreData.DataProviders
         protected DataProviderBase(string connectionString)
         {
             ConnectionString = connectionString;
+
+            
         }
 
         protected string ConnectionString { get; set; }
@@ -37,5 +39,9 @@ namespace SitecoreData.DataProviders
 
 
         public abstract IEnumerable<ItemDto> GetItemsInWorkflowState(Guid workflowStateId);
+
+
+        public abstract IEnumerable<ItemDto> GetItemsByTemplate(Guid templateId);
+        
     }
 }

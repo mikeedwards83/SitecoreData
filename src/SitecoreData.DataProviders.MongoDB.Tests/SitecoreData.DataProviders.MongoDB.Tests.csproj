@@ -5,21 +5,13 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{15F52B3B-2989-41F6-B6CB-4A04693585FA}</ProjectGuid>
+    <ProjectGuid>{60F6DE70-B902-4A21-98A5-6D6DAB0A6DC5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SitecoreData.DataProviders</RootNamespace>
-    <AssemblyName>SitecoreData.DataProviders</AssemblyName>
+    <RootNamespace>SitecoreData.DataProviders.MongoDB.Tests</RootNamespace>
+    <AssemblyName>SitecoreData.DataProviders.MongoDB.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>
-    </SccProjectName>
-    <SccLocalPath>
-    </SccLocalPath>
-    <SccAuxPath>
-    </SccAuxPath>
-    <SccProvider>
-    </SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -38,26 +30,14 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug with Publish|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug with Publish\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <CodeAnalysisLogFile>bin\Debug\SitecoreData.DataProviders.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
-    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
-  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.framework">
+      <HintPath>..\tst\SitecoreData.DataProviders.RavenDB.Tests\bin\Debug with Publish\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="Sitecore.Kernel">
       <HintPath>..\..\depends\Sitecore.Kernel.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -66,15 +46,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataProviderWrapper.cs" />
-    <Compile Include="FieldDto.cs" />
-    <Compile Include="IReadableDataProvider.cs" />
-    <Compile Include="ItemDto.cs" />
-    <Compile Include="IWritableDataProvider.cs" />
-    <Compile Include="DataProviderBase.cs" />
+    <Compile Include="UsingFastQueryWithMongo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PublishItem.cs" />
-    <Compile Include="WorkflowHistory.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SitecoreData.DataProviders.MongoDB\SitecoreData.DataProviders.MongoDB.csproj">
+      <Project>{2698B185-AF47-4C5A-AFF7-B118318C0DC7}</Project>
+      <Name>SitecoreData.DataProviders.MongoDB</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SitecoreData.DataProviders\SitecoreData.DataProviders.csproj">
+      <Project>{15F52B3B-2989-41F6-B6CB-4A04693585FA}</Project>
+      <Name>SitecoreData.DataProviders</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

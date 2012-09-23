@@ -4,6 +4,7 @@ using System.Linq;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using Sitecore;
+using Sitecore.Collections;
 using Sitecore.Data;
 using Sitecore.Workflows;
 
@@ -25,6 +26,12 @@ namespace SitecoreData.DataProviders.MongoDB
             Items = Db.GetCollection<ItemDto>("items", SafeMode);
             Items.EnsureIndex(IndexKeys.Ascending(new[] {"ParentId"}));
             Items.EnsureIndex(IndexKeys.Ascending(new[] {"TemplateId"}));
+            Items.EnsureIndex(IndexKeys.Ascending(new[] { "WorkflowStateId" }));
+
+            PublishQueue = Db.GetCollection<PublishItem>("publishQueue", SafeMode);
+            PublishQueue.EnsureIndex(IndexKeys.Ascending(new[] { "Date" }));
+
+
         }
 
         private ID JoinParentId { get; set; }
@@ -34,6 +41,8 @@ namespace SitecoreData.DataProviders.MongoDB
         private MongoDatabase Db { get; set; }
 
         private MongoCollection<ItemDto> Items { get; set; }
+
+        private MongoCollection<PublishItem> PublishQueue { get; set; }
 
         private SafeMode SafeMode { get; set; }
 
@@ -121,5 +130,58 @@ namespace SitecoreData.DataProviders.MongoDB
             return ids;
         }
 
+       
+
+        public void AddToPublishQueue(PublishItem item)
+        {
+            PublishQueue.Save(item);
+        }
+
+
+        public void CleanUpPublishQueue(DateTime to)
+        {
+            var query = Query.LT("Date", to);
+            PublishQueue.Remove(query);
+        }
+
+        public IEnumerable<PublishItem> GetPublishQueue(DateTime from, DateTime to)
+        {
+            var query = Query.And(
+                Query.LT("Date", to),
+                Query.GT("Date", from));
+            return PublishQueue.Find(query).ToArray();
+        }
+
+
+
+        public override IEnumerable<ItemDto> GetItemsByTemplate(Guid templateId)
+        {
+            var query = Query.EQ("TemplateId", templateId);
+            return Items.Find(query).ToArray();
+        }
+
+
+        public IDList SelectIds(string query, Sitecore.Data.DataProviders.CallContext callContext)
+        {
+
+            //fast query 
+
+            if(query.StartsWith("fast:"))
+            {
+                query = query.Substring(5);
+                var parts = query.Split(new []{'/'}, StringSplitOptions.RemoveEmptyEntries);
+
+                string name = parts.Last().Substring(1, parts.Length - 2);
+
+                var mongoDb = Query.EQ("Name", name);
+
+                var results = Items.Find(mongoDb).Select(x => new ID(x.Id));
+                return IDList.Build(results.ToArray());
+            }
+            
+
+            //standard query
+            throw new NotImplementedException();
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Raven.Client.Document;
+using Sitecore.Collections;
 
 namespace SitecoreData.DataProviders.RavenDB
 {
@@ -166,7 +167,47 @@ namespace SitecoreData.DataProviders.RavenDB
 
         public override IEnumerable<ItemDto> GetItemsInWorkflowState(Guid workflowStateId)
         {
-            return new ItemDto[] { };
+            //Note: this hasn't been tested
+            using (var session = _store.OpenSession())
+            {
+                return (from dto in session.Query<ItemDto>()
+                        where dto.WorkflowStateId == workflowStateId
+                        select dto).ToArray();
+            }
+        }
+
+
+        public void AddToPublishQueue(PublishItem item)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public void CleanUpPublishQueue(DateTime to)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<PublishItem> GetPublishQueue(DateTime from, DateTime to)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IEnumerable<ItemDto> GetItemsByTemplate(Guid templateId)
+        {
+            //Note: this hasn't been tested
+            using (var session = _store.OpenSession())
+            {
+                return (from dto in session.Query<ItemDto>()
+                        where dto.TemplateId == templateId
+                        select dto).ToArray();
+            }
+        }
+
+
+        public IDList SelectIds(string query, Sitecore.Data.DataProviders.CallContext callContext)
+        {
+            throw new NotImplementedException();
         }
     }
 }
