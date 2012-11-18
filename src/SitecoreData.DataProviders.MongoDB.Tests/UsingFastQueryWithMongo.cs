@@ -8,6 +8,7 @@ using Sitecore.Data;
 namespace SitecoreData.DataProviders.MongoDB.Tests
 {
     [TestFixture]
+    [Category("MongoDB Fast Query Tests")]
     public class UsingFastQueryWithMongo
     {
         private MongoDataProvider _provider;
