@@ -24,13 +24,15 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         {
             var connectionString = "mongodb://localhost:27017/?safe=true";
             _server = MongoServer.Create(connectionString);
-            _db = _server.GetDatabase("nosqlmongotesting");
+            _db = _server.GetDatabase("nosqlmongotest");
 
         }
 
         [TearDown]
         public void ClearDataBase()
-        { }
+        {
+            //_db.Drop();
+        }
 
         [Test]
         public void CanMakeConnectionToMongoServer()
@@ -45,16 +47,10 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         }
 
         [Test]
-        public void CanCopyDataToTestDatabase()
-        {
-            Item item = Factory.GetDatabase("master").GetItem("/sitecore/layout");
-        }
-
-        [Test]
         public void CanTransferData()
         {
             var sourceDatabase = Factory.GetDatabase("master");
-            var targetDatabase = Factory.GetDatabase("nosqlmongoweb");
+            var targetDatabase = Factory.GetDatabase("nosqlmongotest");
             var item = sourceDatabase.GetItem("/sitecore/layout");
             
 
