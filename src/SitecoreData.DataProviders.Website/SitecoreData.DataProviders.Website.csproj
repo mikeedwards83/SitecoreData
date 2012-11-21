@@ -95,12 +95,9 @@
   <ItemGroup>
     <Content Include="Transfer.aspx" />
     <Content Include="TestDataProvider.aspx" />
-    <Content Include="Web.config">
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Config\Include\SitecoreData.config">
+    <Content Include="App_Config\Include\SitecoreData.Mongo.config">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -121,6 +118,11 @@
       <Project>{2698B185-AF47-4C5A-AFF7-B118318C0DC7}</Project>
       <Name>SitecoreData.DataProviders.MongoDB</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App_Config\Include\SitecoreData.Raven.config.exclude">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
