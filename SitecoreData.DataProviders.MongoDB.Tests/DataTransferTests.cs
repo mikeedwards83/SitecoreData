@@ -53,7 +53,6 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         {
             var sourceDatabase = Factory.GetDatabase("master");
             var targetDatabase = Factory.GetDatabase("nosqlmongotest");
-            TransferSingleItem("/sitecore", sourceDatabase, targetDatabase);
             TransferPath("/sitecore/layout", sourceDatabase, targetDatabase);
             Assert.That(_db.GetCollectionNames().Contains("items"), Is.True);
         }
@@ -63,34 +62,60 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         {
             var sourceDatabase = Factory.GetDatabase("master");
             var targetDatabase = Factory.GetDatabase("nosqlmongotest");
-            TransferSingleItem("/sitecore", sourceDatabase, targetDatabase);
             TransferPath("/sitecore/layout", sourceDatabase, targetDatabase);
             Assert.That(_db.GetCollection("items").Count(), Is.EqualTo(59));
         }
 
-        private void TransferSingleItem(string itemPath, Database sourceDatabase, Database targetDatabase)
+        [Test]
+        public void CanTransferDeepHierarchy()
         {
-            var item = sourceDatabase.GetItem(itemPath);
-            var dataProvider = targetDatabase.GetDataProviders().First() as DataProviderWrapper;
-            TransferRecursive(item, dataProvider, loopThroughChildren:false);
+            var sourceDatabase = Factory.GetDatabase("master");
+            var targetDatabase = Factory.GetDatabase("nosqlmongotest");
+            TransferPath("/sitecore/layout/renderings", sourceDatabase, targetDatabase);
+            Assert.That(_db.GetCollection("items").Count(), Is.EqualTo(13));
+
         }
 
         private void TransferPath(string itemPath, Database sourceDatabase, Database targetDatabase)
         {
             var item = sourceDatabase.GetItem(itemPath);
             var dataProvider = targetDatabase.GetDataProviders().First() as DataProviderWrapper;
-            TransferRecursive(item, dataProvider);
+            TransferAncestors(item.Parent, dataProvider);
+            TransferItemAndDescendants(item, dataProvider);
         }
 
         //TODO Move to separate class, and refactor Transfer.aspx to use this new class.
-        public void TransferRecursive(Item item, DataProviderWrapper provider, bool loopThroughChildren = true)
+        public void TransferItemAndDescendants(Item item, DataProviderWrapper provider)
         {
             
+            TransferSingleItem(item, provider);
+
+            if (!item.HasChildren)
+            {
+                return;
+            }
+
+            foreach (Item child in item.Children)
+            {
+                TransferItemAndDescendants(child, provider);
+            }
+        }
+        
+        public void TransferAncestors(Item item, DataProviderWrapper provider)
+        {
+            if (item == null) return;
+            TransferAncestors(item.Parent,provider);
+            TransferSingleItem(item, provider);
+        }
+
+        private static void TransferSingleItem(Item item, DataProviderWrapper provider)
+        {
             ItemDefinition parentDefinition = null;
 
             if (item.Parent != null)
             {
-                parentDefinition = new ItemDefinition(item.Parent.ID, item.Parent.Name, item.Parent.TemplateID, item.Parent.BranchId);
+                parentDefinition = new ItemDefinition(item.Parent.ID, item.Parent.Name, item.Parent.TemplateID,
+                                                      item.Parent.BranchId);
             }
 
             // Create the item in database
@@ -122,16 +147,6 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
                         }
                     }
                 }
-            }
-
-            if (!item.HasChildren || !loopThroughChildren)
-            {
-                return;
-            }
-
-            foreach (Item child in item.Children)
-            {
-                TransferRecursive(child, provider);
             }
         }
 
