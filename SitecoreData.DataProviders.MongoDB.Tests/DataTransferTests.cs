@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using MongoDB.Bson;
@@ -22,16 +23,17 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         [SetUp]
         public void CopyDataFromTemplatesFolder()
         {
-            var connectionString = "mongodb://localhost:27017/?safe=true";
+            var connectionString = ConfigurationManager.ConnectionStrings["nosqlmongotest"].ConnectionString;
             _server = MongoServer.Create(connectionString);
-            _db = _server.GetDatabase("nosqlmongotest");
+            var databaseName = MongoUrl.Create(connectionString).DatabaseName;
+            _db = _server.GetDatabase(databaseName);
 
         }
 
         [TearDown]
         public void ClearDataBase()
         {
-            //_db.Drop();
+            _db.Drop();
         }
 
         [Test]
@@ -47,18 +49,41 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         }
 
         [Test]
+        public void MongoDbHasItemsCollection()
+        {
+            var sourceDatabase = Factory.GetDatabase("master");
+            var targetDatabase = Factory.GetDatabase("nosqlmongotest");
+            TransferSingleItem("/sitecore", sourceDatabase, targetDatabase);
+            TransferPath("/sitecore/layout", sourceDatabase, targetDatabase);
+            Assert.That(_db.GetCollectionNames().Contains("items"), Is.True);
+        }
+
+        [Test]
         public void CanTransferData()
         {
             var sourceDatabase = Factory.GetDatabase("master");
             var targetDatabase = Factory.GetDatabase("nosqlmongotest");
-            var item = sourceDatabase.GetItem("/sitecore/layout");
-            
+            TransferSingleItem("/sitecore", sourceDatabase, targetDatabase);
+            TransferPath("/sitecore/layout", sourceDatabase, targetDatabase);
+            Assert.That(_db.GetCollection("items").Count(), Is.EqualTo(59));
+        }
 
+        private void TransferSingleItem(string itemPath, Database sourceDatabase, Database targetDatabase)
+        {
+            var item = sourceDatabase.GetItem(itemPath);
+            var dataProvider = targetDatabase.GetDataProviders().First() as DataProviderWrapper;
+            TransferRecursive(item, dataProvider, loopThroughChildren:false);
+        }
+
+        private void TransferPath(string itemPath, Database sourceDatabase, Database targetDatabase)
+        {
+            var item = sourceDatabase.GetItem(itemPath);
             var dataProvider = targetDatabase.GetDataProviders().First() as DataProviderWrapper;
             TransferRecursive(item, dataProvider);
         }
 
-        public void TransferRecursive(Item item, DataProviderWrapper provider)
+        //TODO Move to separate class, and refactor Transfer.aspx to use this new class.
+        public void TransferRecursive(Item item, DataProviderWrapper provider, bool loopThroughChildren = true)
         {
             
             ItemDefinition parentDefinition = null;
@@ -99,7 +124,7 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
                 }
             }
 
-            if (!item.HasChildren)
+            if (!item.HasChildren || !loopThroughChildren)
             {
                 return;
             }
