@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
+﻿using System.Configuration;
 using System.Linq;
-using System.Text;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
 using Sitecore.Configuration;
-using Sitecore.Data;
-using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
-using Sitecore.Globalization;
 
 namespace SitecoreData.DataProviders.MongoDB.Tests
 {
@@ -81,9 +74,6 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         {
             Item item = Factory.GetDatabase("master").GetItem("/sitecore/layout");
             Assert.That(item.ID.ToString(), Is.EqualTo("{EB2E4FFD-2761-4653-B052-26A64D385227}"));
-
         }
-
-
     }
 }

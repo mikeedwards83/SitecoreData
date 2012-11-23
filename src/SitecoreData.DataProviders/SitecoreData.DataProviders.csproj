@@ -74,6 +74,7 @@
     <Compile Include="DataProviderBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PublishItem.cs" />
+    <Compile Include="TransferUtil.cs" />
     <Compile Include="WorkflowHistory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

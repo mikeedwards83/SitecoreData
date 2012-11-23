@@ -3,7 +3,6 @@ using Sitecore.Data;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
 using Sitecore.Globalization;
-using SitecoreData.DataProviders.MongoDB.Tests;
 
 namespace SitecoreData.DataProviders
 {
