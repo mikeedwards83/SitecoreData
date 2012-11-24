@@ -46,7 +46,7 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         {
             var sourceDatabase = Factory.GetDatabase("master");
             var targetDatabase = Factory.GetDatabase("nosqlmongotest");
-            TransferUtil.TransferPath("/sitecore/layout", sourceDatabase, targetDatabase);
+            TransferUtil.TransferPath("/sitecore/layout", sourceDatabase, targetDatabase, null);
             Assert.That(_db.GetCollectionNames().Contains("items"), Is.True);
         }
 
@@ -55,7 +55,7 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         {
             var sourceDatabase = Factory.GetDatabase("master");
             var targetDatabase = Factory.GetDatabase("nosqlmongotest");
-            TransferUtil.TransferPath("/sitecore/layout", sourceDatabase, targetDatabase);
+            TransferUtil.TransferPath("/sitecore/layout", sourceDatabase, targetDatabase, null);
             Assert.That(_db.GetCollection("items").Count(), Is.EqualTo(59));
         }
 
@@ -64,7 +64,7 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         {
             var sourceDatabase = Factory.GetDatabase("master");
             var targetDatabase = Factory.GetDatabase("nosqlmongotest");
-            TransferUtil.TransferPath("/sitecore/layout/renderings", sourceDatabase, targetDatabase);
+            TransferUtil.TransferPath("/sitecore/layout/renderings", sourceDatabase, targetDatabase, null);
             Assert.That(_db.GetCollection("items").Count(), Is.EqualTo(13));
 
         }

@@ -1,25 +1,27 @@
+using System;
 using System.Linq;
 using Sitecore.Data;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
 using Sitecore.Globalization;
+using Version = Sitecore.Data.Version;
 
 namespace SitecoreData.DataProviders
 {
     static public class TransferUtil
     {
-        public static void TransferPath(string itemPath, Database sourceDatabase, Database targetDatabase)
+        public static void TransferPath(string itemPath, Database sourceDatabase, Database targetDatabase, Action<string> callback)
         {
             var item = sourceDatabase.GetItem(itemPath);
             var dataProvider = targetDatabase.GetDataProviders().First() as DataProviderWrapper;
-            TransferAncestors(item.Parent, dataProvider);
-            TransferItemAndDescendants(item, dataProvider);
+            TransferAncestors(item.Parent, dataProvider, callback);
+            TransferItemAndDescendants(item, dataProvider, callback);
         }
 
-        private static void TransferItemAndDescendants(Item item, DataProviderWrapper provider)
+        private static void TransferItemAndDescendants(Item item, DataProviderWrapper provider, Action<string> callback)
         {
             
-            TransferSingleItem(item, provider);
+            TransferSingleItem(item, provider, callback);
 
             if (!item.HasChildren)
             {
@@ -28,18 +30,18 @@ namespace SitecoreData.DataProviders
 
             foreach (Item child in item.Children)
             {
-                TransferItemAndDescendants(child, provider);
+                TransferItemAndDescendants(child, provider, callback);
             }
         }
 
-        private static void TransferAncestors(Item item, DataProviderWrapper provider)
+        private static void TransferAncestors(Item item, DataProviderWrapper provider, Action<string> callback)
         {
             if (item == null) return;
-            TransferAncestors(item.Parent,provider);
-            TransferSingleItem(item, provider);
+            TransferAncestors(item.Parent,provider, callback);
+            TransferSingleItem(item, provider, callback);
         }
 
-        private static void TransferSingleItem(Item item, DataProviderWrapper provider)
+        private static void TransferSingleItem(Item item, DataProviderWrapper provider, Action<string> callback)
         {
             ItemDefinition parentDefinition = null;
 
