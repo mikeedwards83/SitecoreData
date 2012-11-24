@@ -3,6 +3,7 @@ using System.Linq;
 using MongoDB.Driver;
 using NUnit.Framework;
 using Sitecore.Configuration;
+using Sitecore.Data;
 using Sitecore.Data.Items;
 
 namespace SitecoreData.DataProviders.MongoDB.Tests
@@ -13,6 +14,9 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
     {
         private MongoServer _server;
         private MongoDatabase _db;
+        private Database _sourceDatabase;
+        private Database _targetDatabase;
+
         [SetUp]
         public void CopyDataFromTemplatesFolder()
         {
@@ -20,6 +24,8 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
             _server = MongoServer.Create(connectionString);
             var databaseName = MongoUrl.Create(connectionString).DatabaseName;
             _db = _server.GetDatabase(databaseName);
+            _sourceDatabase = Factory.GetDatabase("master");
+            _targetDatabase = Factory.GetDatabase("nosqlmongotest");
 
         }
 
@@ -44,27 +50,21 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         [Test]
         public void MongoDbHasItemsCollection()
         {
-            var sourceDatabase = Factory.GetDatabase("master");
-            var targetDatabase = Factory.GetDatabase("nosqlmongotest");
-            TransferUtil.TransferPath("/sitecore/layout", sourceDatabase, targetDatabase, null);
+            TransferUtil.TransferPath("/sitecore/layout", _sourceDatabase, _targetDatabase, null);
             Assert.That(_db.GetCollectionNames().Contains("items"), Is.True);
         }
 
         [Test]
         public void CanTransferData()
         {
-            var sourceDatabase = Factory.GetDatabase("master");
-            var targetDatabase = Factory.GetDatabase("nosqlmongotest");
-            TransferUtil.TransferPath("/sitecore/layout", sourceDatabase, targetDatabase, null);
+            TransferUtil.TransferPath("/sitecore/layout", _sourceDatabase, _targetDatabase, null);
             Assert.That(_db.GetCollection("items").Count(), Is.EqualTo(59));
         }
 
         [Test]
         public void CanTransferDeepHierarchy()
         {
-            var sourceDatabase = Factory.GetDatabase("master");
-            var targetDatabase = Factory.GetDatabase("nosqlmongotest");
-            TransferUtil.TransferPath("/sitecore/layout/renderings", sourceDatabase, targetDatabase, null);
+            TransferUtil.TransferPath("/sitecore/layout/renderings", _sourceDatabase, _targetDatabase, null);
             Assert.That(_db.GetCollection("items").Count(), Is.EqualTo(13));
 
         }
