@@ -24,6 +24,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug with Publish|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
@@ -108,4 +117,35 @@
   </Target>  
   <Target Name="AfterBuild">
   </Target>-->
+  <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Debug with Publish'">
+    <PropertyGroup>
+      <DeployCommandFile>..\..\deploycommand.xml</DeployCommandFile>
+    </PropertyGroup>
+    <Message Condition=" !Exists( '$(DeployCommandFile)' ) " Importance="high" Text="Deploy command file not found, skipping deployment" />
+    <Message Condition=" Exists( '$(DeployCommandFile)' ) " Importance="high" Text="Using deploy command file $(DeployCommandFile)" />
+    <MSBuild Condition=" Exists( '$(DeployCommandFile)' ) " Projects="$(MSBuildProjectFullPath)" Targets="DeployWebApplication" StopOnFirstFailure="true" Properties="&#xD;&#xA;      DeployCommandFile=$(DeployCommandFile)" />
+  </Target>
+  <Target Name="DeployWebApplication">
+    <XmlPeek XmlInputPath="$(DeployCommandFile)" Query="/deploy/to/text()">
+      <Output TaskParameter="Result" ItemName="To" />
+    </XmlPeek>
+    <PropertyGroup>
+      <DeployDirectory>@(To)</DeployDirectory>
+    </PropertyGroup>
+    <Error Condition=" '$(DeployDirectory)' == '' " Text="Empty 'to' element found in $(DeployCommandFile)" />
+    <Error Condition=" !Exists(' $(DeployDirectory)' ) " Text="Deployment directory $(DeployDirectory) does not exist!" />
+    <Message Importance="high" Text=" Deployment directory is $(DeployDirectory)" />
+    <ItemGroup>
+      <Assemblies Include="bin\*" />
+    </ItemGroup>
+    <Message Importance="high" Text=" Copying assemblies..." />
+    <Copy SourceFiles="@(Assemblies)" DestinationFiles="@( Assemblies -> '$(DeployDirectory)\bin\%(Filename)%(Extension)' )" OverwriteReadOnlyFiles="True" SkipUnchangedFiles="True"/>
+    <CreateItem Include="Test.aspx">
+      <Output ItemName="TestRunner" TaskParameter="Include" />
+    </CreateItem>
+    <Message Importance="high" Text=" Copying Test.aspx..." />
+    <Copy SourceFiles="@(TestRunner)" DestinationFiles="@( TestRunner -> '$(DeployDirectory)\(Filename)%(Extension)' )" OverwriteReadOnlyFiles="True" SkipUnchangedFiles="True" />
+    <Message Importance="high" Text="Deployment of $(MSBuildProjectName) complete." />
+  </Target>
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
 </Project>
