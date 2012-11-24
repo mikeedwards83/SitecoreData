@@ -51,6 +51,11 @@ namespace SitecoreData.DataProviders
                                                       item.Parent.BranchId);
             }
 
+            if (callback != null)
+            {
+                callback(item.Paths.FullPath);
+            }
+
             // Create the item in database
             if (provider.CreateItem(item.ID, item.Name, item.TemplateID, parentDefinition, null))
             {

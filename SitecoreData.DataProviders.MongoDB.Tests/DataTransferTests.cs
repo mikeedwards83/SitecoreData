@@ -1,5 +1,7 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.Linq;
+using FakeItEasy;
 using MongoDB.Driver;
 using NUnit.Framework;
 using Sitecore.Configuration;
@@ -75,5 +77,25 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
             Item item = Factory.GetDatabase("master").GetItem("/sitecore/layout");
             Assert.That(item.ID.ToString(), Is.EqualTo("{EB2E4FFD-2761-4653-B052-26A64D385227}"));
         }
+
+        [Test]
+        public void CallbackMethodCalled()
+        {
+            var action = A.Fake<Action<string>>();
+            using (var scope = Fake.CreateScope())
+            {
+                TransferUtil.TransferPath("/sitecore/layout/devices/print", _sourceDatabase, _targetDatabase, action);
+                using (scope.OrderedAssertions())
+                {
+                    A.CallTo(() => action.Invoke("/sitecore")).MustHaveHappened(Repeated.Exactly.Once);
+                    A.CallTo(() => action.Invoke("/sitecore/layout")).MustHaveHappened(Repeated.Exactly.Once);
+                    A.CallTo(() => action.Invoke("/sitecore/layout/Devices")).MustHaveHappened(Repeated.Exactly.Once);
+                    A.CallTo(() => action.Invoke("/sitecore/layout/Devices/Print")).MustHaveHappened(
+                        Repeated.Exactly.Once);
+                }
+            }
+        }
+
+        
     }
 }
