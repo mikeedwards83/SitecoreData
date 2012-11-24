@@ -18,7 +18,7 @@ namespace SitecoreData.DataProviders
             TransferItemAndDescendants(item, dataProvider, callback);
         }
 
-        private static void TransferItemAndDescendants(Item item, DataProviderWrapper provider, Action<string> callback)
+        public static void TransferItemAndDescendants(Item item, DataProviderWrapper provider, Action<string> callback)
         {
             
             TransferSingleItem(item, provider, callback);
