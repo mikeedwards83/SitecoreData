@@ -12,7 +12,6 @@
     <AssemblyName>SitecoreData.DataProviders.MongoDB.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SitecorePath>C:\inetpub\wwwroot\SitecoreData2\Website</SitecorePath>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
@@ -108,16 +107,8 @@
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
-  </Target>  -->
+  </Target>  
   <Target Name="AfterBuild">
-    <CreateItem Include="$(OutputPath)\*.dll">
-      <Output ItemName="BinFiles" TaskParameter="Include" />
-    </CreateItem>
-    <Copy SourceFiles="@(BinFiles)" DestinationFolder="$(SitecorePath)\bin" SkipUnchangedFiles="true" />
-    <CreateItem Include="**\*.aspx">
-      <Output ItemName="WebFiles" TaskParameter="Include" />
-    </CreateItem>
-    <Copy SourceFiles="@(WebFiles)" DestinationFiles="@(WebFiles->'$(SitecorePath)\%(RelativeDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
-  </Target>
-  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+  </Target>-->
+    
 </Project>
