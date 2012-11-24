@@ -30,6 +30,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SitecoreData.DataProviders.RavenDB.Tests", "tst\SitecoreData.DataProviders.RavenDB.Tests\SitecoreData.DataProviders.RavenDB.Tests.csproj", "{45018039-902E-4866-9A73-A7FA5B86ACF3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SitecoreData.DataProviders.MongoDB.Tests", "src\SitecoreData.DataProviders.MongoDB.Tests\SitecoreData.DataProviders.MongoDB.Tests.csproj", "{60F6DE70-B902-4A21-98A5-6D6DAB0A6DC5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SitecoreData.DataProviders.MongoDB.Tests", "tst\SitecoreData.DataProviders.MongoDB.Tests\SitecoreData.DataProviders.MongoDB.Tests.csproj", "{60F6DE70-B902-4A21-98A5-6D6DAB0A6DC5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

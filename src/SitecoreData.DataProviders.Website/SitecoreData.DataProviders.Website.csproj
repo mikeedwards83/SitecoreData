@@ -88,7 +88,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SitecoreData.DataProviders.MongoDB.Tests\SitecoreData.DataProviders.MongoDB.Tests.csproj">
+    <ProjectReference Include="..\..\tst\SitecoreData.DataProviders.MongoDB.Tests\SitecoreData.DataProviders.MongoDB.Tests.csproj">
       <Project>{60F6DE70-B902-4A21-98A5-6D6DAB0A6DC5}</Project>
       <Name>SitecoreData.DataProviders.MongoDB.Tests</Name>
     </ProjectReference>
