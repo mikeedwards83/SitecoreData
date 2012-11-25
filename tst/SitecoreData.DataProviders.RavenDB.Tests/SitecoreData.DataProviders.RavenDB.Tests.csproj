@@ -62,9 +62,6 @@
     <Reference Include="Sitecore.Kernel, Version=6.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\depends\Sitecore.Kernel.dll</HintPath>
-    </Reference>
-    <Reference Include="Sitecore.Logging">
-      <HintPath>..\..\depends\Sitecore.Logging.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
