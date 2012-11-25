@@ -151,6 +151,11 @@
     <Error Condition=" '$(DeployDirectory)' == '' " Text="Empty 'to' element found in $(DeployCommandFile)" />
     <Error Condition=" !Exists(' $(DeployDirectory)' ) " Text="Deployment directory $(DeployDirectory) does not exist!" />
     <Message Importance="high" Text=" Deployment directory is $(DeployDirectory)" />
+    <Message Importance="high" Text=" Copying App_Config files..." />
+    <ItemGroup>
+      <AppConfig Include="App_Config\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(AppConfig)" DestinationFiles="@( AppConfig -> '$(DeployDirectory)\App_Config\%(RecursiveDir)%(Filename)%(Extension)' )" OverwriteReadOnlyFiles="True" SkipUnchangedFiles="True" />
     <Message Importance="high" Text=" Copying web application files..." />
     <MSBuild Projects="$(MSBuildProjectFullPath)" Properties="WebProjectOutputDir=$(DeployDirectory);OutDir=$(DeployDirectory)\bin\" Targets="_CopyWebApplication" />
     <ItemGroup>
