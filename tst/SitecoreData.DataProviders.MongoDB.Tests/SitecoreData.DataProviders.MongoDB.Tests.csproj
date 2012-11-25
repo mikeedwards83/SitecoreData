@@ -136,7 +136,7 @@
     <Error Condition=" !Exists(' $(DeployDirectory)' ) " Text="Deployment directory $(DeployDirectory) does not exist!" />
     <Message Importance="high" Text=" Deployment directory is $(DeployDirectory)" />
     <ItemGroup>
-      <Assemblies Include="bin\*" />
+      <Assemblies Include="bin\**\*" />
     </ItemGroup>
     <Message Importance="high" Text=" Copying assemblies..." />
     <Copy SourceFiles="@(Assemblies)" DestinationFiles="@( Assemblies -> '$(DeployDirectory)\bin\%(Filename)%(Extension)' )" OverwriteReadOnlyFiles="True" SkipUnchangedFiles="True"/>
@@ -144,7 +144,7 @@
       <Output ItemName="TestRunner" TaskParameter="Include" />
     </CreateItem>
     <Message Importance="high" Text=" Copying Test.aspx..." />
-    <Copy SourceFiles="@(TestRunner)" DestinationFiles="@( TestRunner -> '$(DeployDirectory)\(Filename)%(Extension)' )" OverwriteReadOnlyFiles="True" SkipUnchangedFiles="True" />
+    <Copy SourceFiles="@(TestRunner)" DestinationFiles="@( TestRunner -> '$(DeployDirectory)\%(Filename)%(Extension)' )" OverwriteReadOnlyFiles="True" SkipUnchangedFiles="True" />
     <Message Importance="high" Text="Deployment of $(MSBuildProjectName) complete." />
   </Target>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
