@@ -65,6 +65,7 @@
     </Reference>
     <Reference Include="Sitecore.Logging">
       <HintPath>..\..\depends\Sitecore.Logging.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
