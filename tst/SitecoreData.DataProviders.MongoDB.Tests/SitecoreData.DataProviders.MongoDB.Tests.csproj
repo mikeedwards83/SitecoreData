@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -48,6 +48,9 @@
     <Reference Include="FakeItEasy">
       <HintPath>..\packages\FakeItEasy.1.7.4626.65\lib\NET40\FakeItEasy.dll</HintPath>
     </Reference>
+    <Reference Include="Lucene.Net">
+      <HintPath>..\..\..\..\..\..\inetpub\wwwroot\SitecoreData2\Website\bin\Lucene.Net.dll</HintPath>
+    </Reference>
     <Reference Include="MongoDB.Bson, Version=1.5.0.4566, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\mongocsharpdriver.1.4.2\lib\net35\MongoDB.Bson.dll</HintPath>
@@ -69,6 +72,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\depends\Sitecore.Kernel.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="Sitecore.Logging">
+      <HintPath>..\..\..\..\..\..\inetpub\wwwroot\SitecoreData2\Website\bin\Sitecore.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="sitecore.nexus">
+      <HintPath>..\..\..\..\..\..\inetpub\wwwroot\SitecoreData2\Website\bin\sitecore.nexus.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -108,6 +117,73 @@
     <Content Include="Test.aspx" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
+    <None Include="App_Config\Commands.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\ConnectionStrings.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\ConnectionStrings.Delta">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\ConnectionStrings.Source">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\ConnectionStringsOracle.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\FieldTypes.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\Icons.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\Include\Sitecore.WebDAV.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\Include\SitecoreData.Mongo.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\Include\zDataFolder.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\Include\zLicense.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\LanguageDefinitions.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\MimeTypes.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\Portraits.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\Prefetch\Common.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\Prefetch\Core.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\Prefetch\Master.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\Prefetch\Web.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\Prototypes.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\Security\Domains.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\Security\GlobalRoles.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App_Config\XamlSharp.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -139,7 +215,7 @@
       <Assemblies Include="bin\**\*" />
     </ItemGroup>
     <Message Importance="high" Text=" Copying assemblies..." />
-    <Copy SourceFiles="@(Assemblies)" DestinationFiles="@( Assemblies -> '$(DeployDirectory)\bin\%(Filename)%(Extension)' )" OverwriteReadOnlyFiles="True" SkipUnchangedFiles="True"/>
+    <Copy SourceFiles="@(Assemblies)" DestinationFiles="@( Assemblies -> '$(DeployDirectory)\bin\%(Filename)%(Extension)' )" OverwriteReadOnlyFiles="True" SkipUnchangedFiles="True" />
     <CreateItem Include="Test.aspx">
       <Output ItemName="TestRunner" TaskParameter="Include" />
     </CreateItem>
