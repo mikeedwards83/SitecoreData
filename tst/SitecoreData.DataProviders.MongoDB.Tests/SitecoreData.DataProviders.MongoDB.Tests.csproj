@@ -95,7 +95,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataTransferTests.cs" />
-    <Compile Include="FastQuerySpecificationTests.cs" />
+    <Compile Include="FastQueryAcceptanceTests.cs" />
     <Compile Include="MongoTestsBase.cs" />
     <Compile Include="UsingFastQueryWithMongo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
