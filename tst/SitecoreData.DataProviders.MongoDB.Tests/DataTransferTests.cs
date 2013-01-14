@@ -12,13 +12,8 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
 {
     [TestFixture]
     [Category("MongoDB Data Transfer Tests")]
-    class DataTransferTests
+    class DataTransferTests : MongoTestsBase
     {
-        private MongoDatabase _db;
-        private Database _sourceDatabase;
-        private Database _targetDatabase;
-
-
         [Test]
         public void CanCreateTestDatabase()
         {
@@ -69,41 +64,6 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
                         Repeated.Exactly.Once);
                 }
             }
-        }
-
-        [SetUp]
-        public void CopyDataFromTemplatesFolder()
-        {
-            EnableConfigurationPatches();
-            InitializeMongoConnection();
-            _sourceDatabase = Factory.GetDatabase("master");
-            _targetDatabase = Factory.GetDatabase("nosqlmongotest");
-        }
-
-        private void InitializeMongoConnection()
-        {
-            var connectionString = ConfigurationManager.ConnectionStrings["nosqlmongotest"].ConnectionString;
-            var server = MongoServer.Create(connectionString);
-            var databaseName = MongoUrl.Create(connectionString).DatabaseName;
-            _db = server.GetDatabase(databaseName);
-        }
-
-        private static void EnableConfigurationPatches()
-        {
-            try
-            {
-                Sitecore.Context.IsUnitTesting = true;
-            }
-            catch (Exception)
-            {
-                //expect  on first call
-            }
-        }
-
-        [TearDown]
-        public void ClearDataBase()
-        {
-            _db.Drop();
         }
     }
 }

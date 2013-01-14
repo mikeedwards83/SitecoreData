@@ -43,7 +43,7 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
 
         }
 
-        [Test]
+        [Test,Ignore]
         public void FastQuery_CanRetrieveChildItems()
         {
             //Assign
@@ -55,7 +55,7 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
             //Assert
         }
 
-        [Test]
+        [Test,Ignore]
         public void FastQuery_CanRetrieveDescendants()
         {
             //Assign
