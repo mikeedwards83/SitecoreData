@@ -14,34 +14,10 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
     [Category("MongoDB Data Transfer Tests")]
     class DataTransferTests
     {
-        private MongoServer _server;
         private MongoDatabase _db;
         private Database _sourceDatabase;
         private Database _targetDatabase;
 
-        [SetUp]
-        public void CopyDataFromTemplatesFolder()
-        {
-            var connectionString = ConfigurationManager.ConnectionStrings["nosqlmongotest"].ConnectionString;
-            _server = MongoServer.Create(connectionString);
-            var databaseName = MongoUrl.Create(connectionString).DatabaseName;
-            _db = _server.GetDatabase(databaseName);
-            _sourceDatabase = Factory.GetDatabase("master");
-            _targetDatabase = Factory.GetDatabase("nosqlmongotest");
-
-        }
-
-        [TearDown]
-        public void ClearDataBase()
-        {
-            _db.Drop();
-        }
-
-        [Test]
-        public void CanMakeConnectionToMongoServer()
-        {
-            Assert.That(_server,Is.Not.Null);
-        }
 
         [Test]
         public void CanCreateTestDatabase()
@@ -68,7 +44,6 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         {
             TransferUtil.TransferPath("/sitecore/layout/renderings", _sourceDatabase, _targetDatabase, null);
             Assert.That(_db.GetCollection("items").Count(), Is.EqualTo(13));
-
         }
 
         [Test]
@@ -96,6 +71,39 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
             }
         }
 
-        
+        [SetUp]
+        public void CopyDataFromTemplatesFolder()
+        {
+            EnableConfigurationPatches();
+            InitializeMongoConnection();
+            _sourceDatabase = Factory.GetDatabase("master");
+            _targetDatabase = Factory.GetDatabase("nosqlmongotest");
+        }
+
+        private void InitializeMongoConnection()
+        {
+            var connectionString = ConfigurationManager.ConnectionStrings["nosqlmongotest"].ConnectionString;
+            var server = MongoServer.Create(connectionString);
+            var databaseName = MongoUrl.Create(connectionString).DatabaseName;
+            _db = server.GetDatabase(databaseName);
+        }
+
+        private static void EnableConfigurationPatches()
+        {
+            try
+            {
+                Sitecore.Context.IsUnitTesting = true;
+            }
+            catch (Exception)
+            {
+                //expect  on first call
+            }
+        }
+
+        [TearDown]
+        public void ClearDataBase()
+        {
+            _db.Drop();
+        }
     }
 }

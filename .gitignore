@@ -102,3 +102,4 @@ Thumbs.db
 Desktop.ini
 
 SitecoreData.sln.DotSettings
+tst/SitecoreData.DataProviders.MongoDB.Tests/App_Config/ConnectionStrings.config

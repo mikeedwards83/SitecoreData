@@ -48,6 +48,9 @@
     <Reference Include="FakeItEasy">
       <HintPath>..\packages\FakeItEasy.1.7.4626.65\lib\NET40\FakeItEasy.dll</HintPath>
     </Reference>
+    <Reference Include="HtmlAgilityPack">
+      <HintPath>..\..\..\..\..\..\inetpub\wwwroot\SitecoreData2\Website\bin\HtmlAgilityPack.dll</HintPath>
+    </Reference>
     <Reference Include="Lucene.Net">
       <HintPath>..\..\..\..\..\..\inetpub\wwwroot\SitecoreData2\Website\bin\Lucene.Net.dll</HintPath>
     </Reference>
@@ -71,7 +74,7 @@
     <Reference Include="Sitecore.Kernel, Version=6.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\depends\Sitecore.Kernel.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Sitecore.Logging">
       <HintPath>..\..\..\..\..\..\inetpub\wwwroot\SitecoreData2\Website\bin\Sitecore.Logging.dll</HintPath>
@@ -83,6 +86,7 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -105,12 +109,12 @@
     <ProjectReference Include="..\..\src\SitecoreData.DataProviders.MongoDB\SitecoreData.DataProviders.MongoDB.csproj">
       <Project>{2698B185-AF47-4C5A-AFF7-B118318C0DC7}</Project>
       <Name>SitecoreData.DataProviders.MongoDB</Name>
-      <Private>False</Private>
+      <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\src\SitecoreData.DataProviders\SitecoreData.DataProviders.csproj">
       <Project>{15F52B3B-2989-41F6-B6CB-4A04693585FA}</Project>
       <Name>SitecoreData.DataProviders</Name>
-      <Private>False</Private>
+      <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
