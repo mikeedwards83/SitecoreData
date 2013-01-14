@@ -95,13 +95,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataTransferTests.cs" />
-    <Compile Include="Test.aspx.cs">
-      <DependentUpon>Test.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Test.aspx.designer.cs">
-      <DependentUpon>Test.aspx</DependentUpon>
-    </Compile>
     <Compile Include="UsingFastQueryWithMongo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -118,23 +111,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Test.aspx" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="App.config" />
     <None Include="App_Config\Commands.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App_Config\ConnectionStrings.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="App_Config\ConnectionStrings.Delta">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="App_Config\ConnectionStrings.Source">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="App_Config\ConnectionStringsOracle.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App_Config\FieldTypes.config">
@@ -214,17 +195,6 @@
     </PropertyGroup>
     <Error Condition=" '$(DeployDirectory)' == '' " Text="Empty 'to' element found in $(DeployCommandFile)" />
     <Error Condition=" !Exists(' $(DeployDirectory)' ) " Text="Deployment directory $(DeployDirectory) does not exist!" />
-    <Message Importance="high" Text=" Deployment directory is $(DeployDirectory)" />
-    <ItemGroup>
-      <Assemblies Include="bin\**\*" />
-    </ItemGroup>
-    <Message Importance="high" Text=" Copying assemblies..." />
-    <Copy SourceFiles="@(Assemblies)" DestinationFiles="@( Assemblies -> '$(DeployDirectory)\bin\%(Filename)%(Extension)' )" OverwriteReadOnlyFiles="True" SkipUnchangedFiles="True" />
-    <CreateItem Include="Test.aspx">
-      <Output ItemName="TestRunner" TaskParameter="Include" />
-    </CreateItem>
-    <Message Importance="high" Text=" Copying Test.aspx..." />
-    <Copy SourceFiles="@(TestRunner)" DestinationFiles="@( TestRunner -> '$(DeployDirectory)\%(Filename)%(Extension)' )" OverwriteReadOnlyFiles="True" SkipUnchangedFiles="True" />
     <Message Importance="high" Text="Deployment of $(MSBuildProjectName) complete." />
   </Target>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
