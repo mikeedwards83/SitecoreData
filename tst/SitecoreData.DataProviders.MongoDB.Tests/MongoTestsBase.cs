@@ -16,7 +16,7 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         [SetUp]
         public void CopyDataFromTemplatesFolder()
         {
-            EnableConfigurationPatches();
+            Sitecore.Context.IsUnitTesting = true;
             InitializeMongoConnection();
             _sourceDatabase = Factory.GetDatabase("master");
             _targetDatabase = Factory.GetDatabase("nosqlmongotest");
@@ -28,18 +28,6 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
             var server = MongoServer.Create(connectionString);
             var databaseName = MongoUrl.Create(connectionString).DatabaseName;
             _db = server.GetDatabase(databaseName);
-        }
-
-        private static void EnableConfigurationPatches()
-        {
-            try
-            {
-                Sitecore.Context.IsUnitTesting = true;
-            }
-            catch (Exception)
-            {
-                //expect  on first call
-            }
         }
 
         [TearDown]

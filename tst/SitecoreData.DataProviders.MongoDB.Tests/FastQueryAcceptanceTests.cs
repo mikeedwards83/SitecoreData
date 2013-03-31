@@ -36,6 +36,10 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
             "fast:/sitecore/Layout/Sublayouts//*[@@templatekey='sublayout']";
         private const string parentid_selector = 
             "fast:/sitecore/Layout//*[@@parentid='{E18F4BC6-46A2-4842-898B-B6613733F06F}']";
+        private const string masterid_selector = 
+            "fast:/sitecore/Layout//*[@@masterid='{00E66E02-DF20-4F3A-B8AA-5239108DC2BB}']";
+        private const string field_name_selector = 
+            "fast:/sitecore/Layout//*[@query string='p=1']";
 
         public enum Database
         {
@@ -85,6 +89,12 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
 
         [TestCase(Database.Mongo, parentid_selector, Result = 3)]
         [TestCase(Database.SqlServer, parentid_selector, Result = 3)]
+
+        [TestCase(Database.Mongo, masterid_selector, Result = 4)]
+        [TestCase(Database.SqlServer, masterid_selector, Result = 4)]
+
+        [TestCase(Database.Mongo, field_name_selector, Result = 1)]
+        [TestCase(Database.SqlServer, field_name_selector, Result = 1)]
 
         public int TestCountOfReturnedItemsForQuery(Database testdb, string query)
         {
