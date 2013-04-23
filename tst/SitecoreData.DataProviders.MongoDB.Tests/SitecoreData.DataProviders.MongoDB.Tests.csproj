@@ -71,6 +71,9 @@
     <Reference Include="nunit.framework">
       <HintPath>..\tst\SitecoreData.DataProviders.RavenDB.Tests\bin\Debug with Publish\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="Sitecore.Analytics">
+      <HintPath>..\..\..\..\..\..\inetpub\wwwroot\SitecoreData\Website\bin\Sitecore.Analytics.dll</HintPath>
+    </Reference>
     <Reference Include="Sitecore.Kernel, Version=6.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\depends\Sitecore.Kernel.dll</HintPath>
@@ -97,6 +100,7 @@
     <Compile Include="DataTransferTests.cs" />
     <Compile Include="FastQueryAcceptanceTests.cs" />
     <Compile Include="MongoTestsBase.cs" />
+    <Compile Include="QueryParser_Should.cs" />
     <Compile Include="UsingFastQueryWithMongo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

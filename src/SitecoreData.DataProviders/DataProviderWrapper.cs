@@ -372,7 +372,10 @@ namespace SitecoreData.DataProviders
 
         public override IDList SelectIDs(string query, CallContext context)
         {
-            
+            if (_provider is IWritableDataProvider)
+            {
+                return ((IWritableDataProvider) _provider).SelectIds(query, context);
+            }
             return base.SelectIDs(query, context);
         }
 

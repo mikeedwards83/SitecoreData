@@ -20,6 +20,7 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
             InitializeMongoConnection();
             _sourceDatabase = Factory.GetDatabase("master");
             _targetDatabase = Factory.GetDatabase("nosqlmongotest");
+            //TransferUtil.TransferPath("/sitecore/layout", _sourceDatabase, _targetDatabase,null);
         }
 
         private void InitializeMongoConnection()
