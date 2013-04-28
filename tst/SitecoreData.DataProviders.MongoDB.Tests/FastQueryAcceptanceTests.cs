@@ -52,6 +52,12 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
             TransferUtil.TransferPath("/sitecore/layout", _sourceDatabase, _targetDatabase, null);
         }
 
+        [TestFixtureTearDown]
+        public void ClearDataBase()
+        {
+            _db.Drop();
+        }
+
         [Test]
 
         [TestCase(Database.Mongo, fast_sitecore_NotReal, Result = 0)]

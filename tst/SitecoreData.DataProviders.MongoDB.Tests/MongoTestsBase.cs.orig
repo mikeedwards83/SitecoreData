@@ -30,6 +30,14 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
             _db = server.GetDatabase(databaseName);
         }
 
+<<<<<<< HEAD
+        [TearDown]
+        public void ClearDataBase()
+        {
+            _db.Drop();
+        }
+=======
 
+>>>>>>> b2d098a... Fix test database clearing logic.
     }
 }

@@ -14,6 +14,12 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
     [Category("MongoDB Data Transfer Tests")]
     class DataTransferTests : MongoTestsBase
     {
+
+        [TearDown]
+        public void ClearDataBase()
+        {
+            _db.Drop();
+        }
         [Test]
         public void CanCreateTestDatabase()
         {
