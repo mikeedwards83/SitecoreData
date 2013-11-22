@@ -21,11 +21,22 @@ This is tested with Sitecore 6.4.1 rev. 110324 and Sitecore 6.5.0 rev. 120427.
 
 ## Installation ##
 
-* Clone
+* Create fresh install of Sitecore.
+* Clone SitecoreData project.
 * Place Sitecore.Kernel.dll in \lib\Sitecore\
-* Configure (connection strings, data folder etc. setup IIS website with clean Sitecore installation) and build
+* Copy ConnectionStrings.config from Sitecore install to SitecoreData\Website project.
+* Add connection string entries for MongoDB databases:
+<pre>     
+&lt;add name="nosqlmongoweb" connectionString="mongodb://localhost:27017/web" />
+&lt;add name="nosqlmongomaster" connectionString="mongodb://localhost:27017/master" /&gt;
+&lt;add name="nosqlmongocore" connectionString="mongodb://localhost:27017/core" /&gt;
+&lt;add name="nosqlmongotest" connectionString="mongodb://localhost:27017/test" /&gt;
+</pre>
+* Install Mongo, launch mongod.exe (this must be done after each server restart, or the mongo service must be configured.
+* Copy default_deploycommand.xml to deploycommand.xml, and change path to point to Sitecore instance website folder.
 * Deploy (Use build configuration "Debug with Publish" and a deploycommand.xml pointing to above IIS website)
-* Run /Transfer.aspx
+* Run /Transfer.aspx, copying web to nosqlmongoweb, and so forth for core and master.
+* Recycle app pool.  Mongo databases are now available in desktop DB chooser.
 
 ## Contributing ##
 
