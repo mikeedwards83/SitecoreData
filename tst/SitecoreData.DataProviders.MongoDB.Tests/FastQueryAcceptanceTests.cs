@@ -85,8 +85,8 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         [TestCase(Database.Mongo, fast_sitecore_Layout_children, Result = 8)]
         [TestCase(Database.SqlServer, fast_sitecore_Layout_children, Result = 8)]
 
-        [TestCase(Database.Mongo, fast_sitecore_Layout_descendants, Result = 57)]
-        [TestCase(Database.SqlServer, fast_sitecore_Layout_descendants, Result = 57)]
+        [TestCase(Database.Mongo, fast_sitecore_Layout_descendants, Result = 58)]
+        [TestCase(Database.SqlServer, fast_sitecore_Layout_descendants, Result = 58)]
 
         [TestCase(Database.Mongo, id_with_curly_braces, Result = 1)]
         [TestCase(Database.SqlServer, id_with_curly_braces, Result = 1)]
@@ -100,8 +100,8 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         [TestCase(Database.Mongo, key_selector, Result = 1)]
         [TestCase(Database.SqlServer, key_selector, Result = 1)]
 
-        [TestCase(Database.Mongo, templatename_selector, Result = 2)]
-        [TestCase(Database.SqlServer, templatename_selector, Result = 2)]
+        [TestCase(Database.Mongo, templatename_selector, Result = 3)]
+        [TestCase(Database.SqlServer, templatename_selector, Result = 3)]
 
         [TestCase(Database.Mongo, templateid_selector, Result = 3)]
         [TestCase(Database.SqlServer, templateid_selector, Result = 3)]
@@ -109,8 +109,8 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         [TestCase(Database.Mongo, templateid_with_braces, Result = 3)]
         [TestCase(Database.SqlServer, templateid_with_braces, Result = 3)]
 
-        [TestCase(Database.Mongo, templatekey_selector, Result = 2)]
-        [TestCase(Database.SqlServer, templatekey_selector, Result = 2)]
+        [TestCase(Database.Mongo, templatekey_selector, Result = 3)]
+        [TestCase(Database.SqlServer, templatekey_selector, Result = 3)]
 
         [TestCase(Database.Mongo, parentid_selector, Result = 3)]
         [TestCase(Database.SqlServer, parentid_selector, Result = 3)]

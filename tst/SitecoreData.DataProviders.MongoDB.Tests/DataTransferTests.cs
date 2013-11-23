@@ -37,7 +37,7 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
         public void CanTransferData()
         {
             TransferUtil.TransferPath("/sitecore/layout", _sourceDatabase, _targetDatabase, null);
-            Assert.That(_db.GetCollection("items").Count(), Is.EqualTo(59));
+            Assert.That(_db.GetCollection("items").Count(), Is.EqualTo(60));
         }
 
         [Test]
