@@ -105,24 +105,28 @@
   </Target>  
   <Target Name="AfterBuild">
   </Target>-->
-  <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Debug with Publish'">
+  <Target Name="AfterBuild">
     <PropertyGroup>
       <DeployCommandFile>..\..\deploycommand.xml</DeployCommandFile>
     </PropertyGroup>
-    <Message Condition=" !Exists( '$(DeployCommandFile)' ) " Importance="high" Text="Deploy command file not found, skipping deployment" />
-    <Message Condition=" Exists( '$(DeployCommandFile)' ) " Importance="high" Text="Using deploy command file $(DeployCommandFile)" />
-    <MSBuild Condition=" Exists( '$(DeployCommandFile)' ) " Projects="$(MSBuildProjectFullPath)" Targets="DeployWebApplication" StopOnFirstFailure="true" Properties="&#xD;&#xA;      DeployCommandFile=$(DeployCommandFile)" />
+    <Message Condition=" !Exists( '$(DeployCommandFile)' ) " Importance="high" Text="Deploy command file not found, cannot set up MongoDB.Test project." />
+    <Message Condition=" Exists( '$(DeployCommandFile)' ) " Importance="high" Text="Setting up Mongo DB.Test project." />
+    <MSBuild Condition=" Exists( '$(DeployCommandFile)' ) " Projects="$(MSBuildProjectFullPath)" Targets="SetupTestProject" StopOnFirstFailure="true" Properties="&#xD;&#xA;      DeployCommandFile=$(DeployCommandFile)" />
   </Target>
-  <Target Name="DeployWebApplication">
+  <Target Name="SetupTestProject">
     <XmlPeek XmlInputPath="$(DeployCommandFile)" Query="/deploy/to/text()">
-      <Output TaskParameter="Result" ItemName="To" />
+      <Output TaskParameter="Result" PropertyName="SitecorePath" />
     </XmlPeek>
-    <PropertyGroup>
-      <DeployDirectory>@(To)</DeployDirectory>
-    </PropertyGroup>
-    <Error Condition=" '$(DeployDirectory)' == '' " Text="Empty 'to' element found in $(DeployCommandFile)" />
-    <Error Condition=" !Exists(' $(DeployDirectory)' ) " Text="Deployment directory $(DeployDirectory) does not exist!" />
-    <Message Importance="high" Text="Deployment of $(MSBuildProjectName) complete." />
+    <Copy SourceFiles="$(SitecorePath)\Web.config" DestinationFiles="$(OutputPath)\$(AssemblyName).dll.config" />
+    <CreateItem Include="$(SitecorePath)\App_Config\**\*.*">
+      <Output ItemName="configFiles" TaskParameter="Include" />
+    </CreateItem>
+    <Copy SourceFiles="@(configFiles)" DestinationFolder="$(OutputPath)\App_Config\%(RecursiveDir)" />
+    <Copy SourceFiles="@(configFiles)" DestinationFolder="$(MSBuildProjectDirectory)\App_Config\%(RecursiveDir)" />
+    <CreateItem Include="$(SitecorePath)\bin\*.dll">
+      <Output ItemName="binaryFiles" TaskParameter="Include" />
+    </CreateItem>
+    <Copy SourceFiles="@(binaryFiles)" DestinationFolder="$(OutputPath)" />
   </Target>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
 </Project>
