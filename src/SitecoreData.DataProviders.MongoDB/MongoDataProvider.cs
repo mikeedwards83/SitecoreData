@@ -174,7 +174,7 @@ namespace SitecoreData.DataProviders.MongoDB
             //fast query 
 
             if (query.StartsWith("fast:"))
-            {
+			{
                 query = query.Substring(5);
                 if (!query.Contains("*"))
                 {
@@ -255,11 +255,38 @@ namespace SitecoreData.DataProviders.MongoDB
                 String name = QueryElementParser.GetName(predicate);
                 baseList = baseList.Select(GetItem).Where(i => i.Name == name).Select(i => i.Id).ToList();
             }
+			else if (predicate.Contains("@@templatename"))
+			{
+				String name = QueryElementParser.GetName(predicate);
+				IEnumerable<ItemDto> templates = GetTemplates();  //TODO Find efficient and reliable way to cache this.
+				IEnumerable<Guid> matchingTemplates = templates.Where(i => i.Name == name).Select(i => i.Id).ToList();
+				baseList = baseList.Select(GetItem).Where(i => matchingTemplates.Contains(i.TemplateId)).Select(i => i.Id).ToList();
+			}
             return baseList;
         }
 
+	    private IEnumerable<ItemDto> GetTemplates()
+	    {
+		    return GetTemplatesRecursive(Sitecore.ItemIDs.TemplateRoot.Guid, new List<Guid>()).Select(GetItem).ToList();
+	    }
 
-        private List<Guid> GetMatchingItemsForWildcardPath(string query)
+	    private IEnumerable<Guid> GetTemplatesRecursive(Guid id, IList<Guid> list)
+	    {
+		    ItemDto item = GetItem(id);
+			if (item.TemplateId == Sitecore.TemplateIDs.Template.Guid)
+			{
+				list.Add(item.Id);
+			}
+		    IEnumerable<Guid> children = GetChildrenOfItem(item.Id);
+			foreach (var child in children)
+			{
+				GetTemplatesRecursive(child, list);
+			}
+		    return list;
+	    }
+
+
+	    private List<Guid> GetMatchingItemsForWildcardPath(string query)
         {
             string parentPath = query.Substring(0, query.IndexOf(@"/*"));
             Debug.Assert(query.Length-2 == parentPath.Length, @"Path must end with ""/*""");

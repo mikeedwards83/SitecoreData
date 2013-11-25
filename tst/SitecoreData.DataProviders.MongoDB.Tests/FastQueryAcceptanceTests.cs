@@ -1,145 +1,178 @@
 ﻿
+using System.Configuration;
+using System.IO;
+using System.Security;
+using MongoDB.Driver;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using Sitecore.Configuration;
 using Sitecore.Data;
 using Sitecore.Data.Items;
+using Sitecore.SecurityModel;
 
 namespace SitecoreData.DataProviders.MongoDB.Tests
 {
+
     [TestFixture]
-    class FastQueryAcceptanceTests : MongoTestsBase
+    class FastQueryAcceptanceTests 
     {
-        private const string fast_sitecore_NotReal = 
-            "fast:/sitecore/NotReal";
 
-        private const string fast_sitecore_layout = 
-            "fast:/sitecore/layout";
+		protected MongoDatabase _db;
+		protected Sitecore.Data.Database _SqlDatabase;
+		protected Sitecore.Data.Database _mongoTestDb;
 
-        private const string fast_sitecore_Layout =
-    "fast:/sitecore/Layout";
-        
-        private const string fast_sitecore_Layout_with_hashes =
-    "fast:/sitecore/#Layout#";
+ 
 
-        private const string fast_sitecore_Layout_children = 
-            "fast:/sitecore/Layout/*"; 
-        private const string fast_sitecore_Layout_descendants = 
-            "fast:/sitecore/Layout//*";
-        private const string id_with_curly_braces = 
-            "fast:/sitecore/Layout//*[@@id='{46D2F427-4CE5-4E1F-BA10-EF3636F43534}']";
-        private const string id_without_curly_braces = 
-            "fast:/sitecore/Layout//*[@@id='46D2F427-4CE5-4E1F-BA10-EF3636F43534']";
-        private const string name_selector = 
-            "fast:/sitecore/Layout//*[@@name='Print']";
-        private const string key_selector = 
-            "fast:/sitecore/Layout//*[@@key='print']";
-        private const string templatename_selector = 
-            "fast:/sitecore/Layout/Sublayouts//*[@@templatename='Sublayout']";
-        private const string templateid_selector = 
-            "fast:/sitecore/Layout//*[@@templateid='B6F7EEB4-E8D7-476F-8936-5ACE6A76F20B']";
-        private const string templateid_with_braces = 
-            "fast:/sitecore/Layout//*[@@templateid='{B6F7EEB4-E8D7-476F-8936-5ACE6A76F20B}']";
-        private const string templatekey_selector = 
-            "fast:/sitecore/Layout/Sublayouts//*[@@templatekey='sublayout']";
-        private const string parentid_selector = 
-            "fast:/sitecore/Layout//*[@@parentid='{E18F4BC6-46A2-4842-898B-B6613733F06F}']";
-        private const string masterid_selector = 
-            "fast:/sitecore/Layout//*[@@masterid='{00E66E02-DF20-4F3A-B8AA-5239108DC2BB}']";
-        private const string field_name_selector = 
-            "fast:/sitecore/Layout//*[@query string='p=1']";
+		private void InitializeMongoConnection()
+		{
+			var connectionString = ConfigurationManager.ConnectionStrings["nosqlmongotest"].ConnectionString;
+			var server = MongoServer.Create(connectionString);
+			var databaseName = MongoUrl.Create(connectionString).DatabaseName;
+			_db = server.GetDatabase(databaseName);
+		}
 
-        public enum Database
+	    public enum Database
         {
-            Mongo, SqlServer
+            Mongo, SqlSv
         }
 
-        [SetUp]
+        [TestFixtureSetUp]
         public void SetUp()
         {
-            TransferUtil.TransferPath("/sitecore/layout", _sourceDatabase, _targetDatabase, null);
+			Sitecore.Context.IsUnitTesting = true;
+			InitializeMongoConnection();
+			_SqlDatabase = Factory.GetDatabase("master");
+			_mongoTestDb = Factory.GetDatabase("nosqlmongotest");
+			CreateTestTemplate(_SqlDatabase);
+			CreateTestContent(_SqlDatabase);
+            TransferUtil.TransferPath("/sitecore/templates", _SqlDatabase, _mongoTestDb, null);
+            TransferUtil.TransferPath("/sitecore/content", _SqlDatabase, _mongoTestDb, null);
         }
 
         [TestFixtureTearDown]
         public void ClearDataBase()
         {
+			RemoveTestContent(_SqlDatabase);
+			RemoveTestTemplate(_SqlDatabase);
+			RemoveTestContent(_mongoTestDb);
+			RemoveTestTemplate(_mongoTestDb);
             _db.Drop();
         }
 
-        [Test]
+       
+        [TestCase("fast:/sitecore/NotReal", Database.Mongo, Result = 0)]
+		[TestCase("fast:/sitecore/NotReal", Database.SqlSv, Result = 0)]
 
-        [TestCase(Database.Mongo, fast_sitecore_NotReal, Result = 0)]
-        [TestCase(Database.SqlServer, fast_sitecore_NotReal, Result = 0)]
+		[TestCase("fast:/sitecore/content/home/test data", Database.Mongo, Result = 1)]
+		[TestCase("fast:/sitecore/content/home/test data", Database.SqlSv, Result = 1)]
 
-        [TestCase(Database.Mongo, fast_sitecore_layout, Result = 1)]
-        [TestCase(Database.SqlServer, fast_sitecore_layout, Result = 1)]
+		[TestCase("fast:/sitecore/content/home/Test Data", Database.Mongo, Result = 1)]
+        [TestCase("fast:/sitecore/content/home/Test Data", Database.SqlSv, Result = 1)]
 
-        [TestCase(Database.Mongo, fast_sitecore_Layout, Result = 1)]
-        [TestCase(Database.SqlServer, fast_sitecore_Layout, Result = 1)]
+		[TestCase("fast:/sitecore/content/home/#Test Data#", Database.Mongo, Result = 1)]
+        [TestCase("fast:/sitecore/content/home/#Test Data#", Database.SqlSv, Result = 1)]
 
-        [TestCase(Database.Mongo, fast_sitecore_Layout_with_hashes, Result = 1)]
-        [TestCase(Database.SqlServer, fast_sitecore_Layout_with_hashes, Result = 1)]
+		[TestCase("fast:/sitecore/content/home/Test Data/*", Database.Mongo, Result = 1)]
+		[TestCase("fast:/sitecore/content/home/Test Data/*", Database.SqlSv, Result = 1)]
 
-        [TestCase(Database.Mongo, fast_sitecore_Layout_children, Result = 8)]
-        [TestCase(Database.SqlServer, fast_sitecore_Layout_children, Result = 8)]
+        [TestCase("fast:/sitecore/content/home/Test Data//*", Database.Mongo, Result = 5)]
+        [TestCase("fast:/sitecore/content/home/Test Data//*", Database.SqlSv, Result = 5)]
 
-        [TestCase(Database.Mongo, fast_sitecore_Layout_descendants, Result = 58)]
-        [TestCase(Database.SqlServer, fast_sitecore_Layout_descendants, Result = 58)]
+        [TestCase("fast:/sitecore/content//*[@@id='{526D0CDD-6C4D-4137-AE7A-C73C35DCEC47}']", Database.Mongo, Result = 1)]
+        [TestCase("fast:/sitecore/content//*[@@id='{526D0CDD-6C4D-4137-AE7A-C73C35DCEC47}']", Database.SqlSv, Result = 1)]
 
-        [TestCase(Database.Mongo, id_with_curly_braces, Result = 1)]
-        [TestCase(Database.SqlServer, id_with_curly_braces, Result = 1)]
+        [TestCase("fast:/sitecore/content//*[@@id='526D0CDD-6C4D-4137-AE7A-C73C35DCEC47']", Database.Mongo, Result = 1)]
+        [TestCase("fast:/sitecore/content//*[@@id='526D0CDD-6C4D-4137-AE7A-C73C35DCEC47']", Database.SqlSv, Result = 1)]
 
-        [TestCase(Database.Mongo, id_without_curly_braces, Result = 1)]
-        [TestCase(Database.SqlServer, id_without_curly_braces, Result = 1)]
+        [TestCase("fast:/sitecore/content//*[@@name='Item 2']", Database.Mongo, Result = 1)]
+        [TestCase("fast:/sitecore/content//*[@@name='Item 2']", Database.SqlSv, Result = 1)]
 
-        [TestCase(Database.Mongo, name_selector, Result = 1)]
-        [TestCase(Database.SqlServer,name_selector,Result = 1)]
+        [TestCase("fast:/sitecore/content//*[@@key='item 2']", Database.Mongo, Result = 1)]
+		[TestCase("fast:/sitecore/content//*[@@key='item 2']", Database.SqlSv, Result = 1)]
 
-        [TestCase(Database.Mongo, key_selector, Result = 1)]
-        [TestCase(Database.SqlServer, key_selector, Result = 1)]
+        [TestCase("fast:/sitecore/content/home/test data//*[@@templatename='Sample Item']", Database.Mongo, Result = 4)]
+		[TestCase("fast:/sitecore/content/home/test data//*[@@templatename='Sample Item']", Database.SqlSv, Result = 4)]
 
-        [TestCase(Database.Mongo, templatename_selector, Result = 3)]
-        [TestCase(Database.SqlServer, templatename_selector, Result = 3)]
+        [TestCase("fast:/sitecore/Layout//*[@@templateid='B6F7EEB4-E8D7-476F-8936-5ACE6A76F20B']", Database.Mongo, Result = 4)]
+		[TestCase("fast:/sitecore/Layout//*[@@templateid='B6F7EEB4-E8D7-476F-8936-5ACE6A76F20B']", Database.SqlSv, Result = 4)]
 
-        [TestCase(Database.Mongo, templateid_selector, Result = 3)]
-        [TestCase(Database.SqlServer, templateid_selector, Result = 3)]
+        [TestCase("fast:/sitecore/Layout//*[@@templateid='{B6F7EEB4-E8D7-476F-8936-5ACE6A76F20B}']", Database.Mongo, Result = 4)]
+        [TestCase("fast:/sitecore/Layout//*[@@templateid='{B6F7EEB4-E8D7-476F-8936-5ACE6A76F20B}']", Database.SqlSv, Result = 4)]
 
-        [TestCase(Database.Mongo, templateid_with_braces, Result = 3)]
-        [TestCase(Database.SqlServer, templateid_with_braces, Result = 3)]
+        [TestCase("fast:/sitecore/content/home/test data//*[@@templatekey='sample item']", Database.Mongo, Result = 4)]
+        [TestCase("fast:/sitecore/content/home/test data//*[@@templatekey='sample item']", Database.SqlSv, Result = 4)]
 
-        [TestCase(Database.Mongo, templatekey_selector, Result = 3)]
-        [TestCase(Database.SqlServer, templatekey_selector, Result = 3)]
+		[TestCase("fast:/sitecore/content/home/test data//*[@@parentid='{946244AC-1BE6-4A4F-A958-88440341A8DB}']", Database.Mongo, Result = 2)]
+		[TestCase("fast:/sitecore/content/home/test data//*[@@parentid='{946244AC-1BE6-4A4F-A958-88440341A8DB}']", Database.SqlSv, Result = 2)]
 
-        [TestCase(Database.Mongo, parentid_selector, Result = 3)]
-        [TestCase(Database.SqlServer, parentid_selector, Result = 3)]
+        [TestCase("fast:/sitecore/Layout//*[@@masterid='{00E66E02-DF20-4F3A-B8AA-5239108DC2BB}']", Database.Mongo, Result = 4, Ignore= true, IgnoreReason = "BranchId not implemented yet.")]
+        [TestCase("fast:/sitecore/Layout//*[@@masterid='{00E66E02-DF20-4F3A-B8AA-5239108DC2BB}']", Database.SqlSv, Result = 4)]
 
-        [TestCase(Database.Mongo, masterid_selector, Result = 4, Ignore= true, IgnoreReason = "BranchId not implemented yet.")]
-        [TestCase(Database.SqlServer, masterid_selector, Result = 4)]
+        [TestCase("fast:/sitecore/Layout//*[@query string='p=1']", Database.Mongo, Result = 1, Ignore=true, IgnoreReason="Field name logic not yet implmented.")]
+        [TestCase("fast:/sitecore/Layout//*[@query string='p=1']", Database.SqlSv, Result = 1)]
 
-        [TestCase(Database.Mongo, field_name_selector, Result = 1, Ignore=true, IgnoreReason="Field name logic not yet implmented.")]
-        [TestCase(Database.SqlServer, field_name_selector, Result = 1)]
-
-        public int TestCountOfReturnedItemsForQuery(Database testdb, string query)
+        public int TestCountOfReturnedItemsForQuery(string query, Database testdb)
         {
             var db = GetTestDatabase(testdb);
+	       
             Item[] items = db.SelectItems(query);
+
             return items.Length;
+			
         }
 
-        private Sitecore.Data.Database GetTestDatabase(Database testdb)
+	    private void RemoveTestContent(Sitecore.Data.Database db)
+	    {
+			using (new SecurityDisabler())
+			{
+				db.GetItem("/sitecore/content/home/test data").Delete();
+			}
+	    }
+
+		private void CreateTestContent(Sitecore.Data.Database db)
+		{
+			string itemxml = File.ReadAllText(System.Environment.CurrentDirectory + @"\..\..\xml\TestItems.xml");
+			Item home = db.GetItem("/sitecore/content/home");
+			using (new SecurityDisabler())
+			{
+				home.Paste(itemxml,false,PasteMode.Merge);
+			}
+		}
+
+	    private void RemoveTestTemplate(Sitecore.Data.Database db)
+	    {
+			using (var disabler = new Sitecore.SecurityModel.SecurityDisabler())
+			{
+				var template = db.GetItem("/sitecore/templates/user defined/user defined item");
+				template.Delete();
+			}
+	    }
+
+	    private void CreateTestTemplate(Sitecore.Data.Database db)
+	    {
+		    using (var disabler = new Sitecore.SecurityModel.SecurityDisabler())
+		    {
+			    string templatexml = File.ReadAllText(System.Environment.CurrentDirectory + @"\..\..\xml\TestTemplate.xml").ToString();
+			    db.GetItem("/sitecore/templates/user defined").Paste(templatexml, false, PasteMode.Merge);
+		    }
+	    }
+
+	    private Sitecore.Data.Database GetTestDatabase(Database testdb)
         {
             switch (testdb)
             {
                 case Database.Mongo:
-                    return _targetDatabase;
-                case Database.SqlServer:
-                    return _sourceDatabase;
+                    return _mongoTestDb;
+                case Database.SqlSv:
+                    return _SqlDatabase;
                 default:
                     throw new ArgumentOutOfRangeException("testdb");
             }
         }
+
+
 
 
     }
