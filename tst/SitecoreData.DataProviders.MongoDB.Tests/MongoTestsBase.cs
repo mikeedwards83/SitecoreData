@@ -7,30 +7,36 @@ using Sitecore.Data;
 
 namespace SitecoreData.DataProviders.MongoDB.Tests
 {
-    internal abstract class MongoTestsBase
-    {
-        protected MongoDatabase _db;
-        protected Database _sourceDatabase;
-        protected Database _targetDatabase;
+	internal abstract class MongoTestsBase
+	{
+		protected MongoDatabase _db;
+		private static string _mongoTestDbConnectionString;
+		private static MongoServer _mongoServer;
+		protected Database _sqlServerSourceDb;
+		protected Database _mongoTargetDb;
 
-        [SetUp]
-        public void CopyDataFromTemplatesFolder()
-        {
-            Sitecore.Context.IsUnitTesting = true;
-            InitializeMongoConnection();
-            _sourceDatabase = Factory.GetDatabase("master");
-            _targetDatabase = Factory.GetDatabase("nosqlmongotest");
-            //TransferUtil.TransferPath("/sitecore/layout", _sourceDatabase, _targetDatabase,null);
-        }
+		[SetUp]
+		public void SetupMongoTestDBConnectionAndRemoveAllItems()
+		{
+			Sitecore.Context.IsUnitTesting = true;
+			_mongoTestDbConnectionString = ConfigurationManager.ConnectionStrings["nosqlmongotest"].ConnectionString;
+			_mongoServer = MongoServer.Create(_mongoTestDbConnectionString);
 
-        private void InitializeMongoConnection()
-        {
-            var connectionString = ConfigurationManager.ConnectionStrings["nosqlmongotest"].ConnectionString;
-            var server = MongoServer.Create(connectionString);
-            var databaseName = MongoUrl.Create(connectionString).DatabaseName;
-            _db = server.GetDatabase(databaseName);
-        }
+			InitializeMongoConnection();
+			RemoveAllItemsFromMongoTestDatabase();
+			_sqlServerSourceDb = Factory.GetDatabase("master");
+			_mongoTargetDb = Factory.GetDatabase("nosqlmongotest");
+		}
 
+		private void InitializeMongoConnection()
+		{
+			var databaseName = MongoUrl.Create(_mongoTestDbConnectionString).DatabaseName;
+			_db = _mongoServer.GetDatabase(databaseName);
+		}
 
-    }
+		private void RemoveAllItemsFromMongoTestDatabase()
+		{
+			_mongoServer.GetDatabase("test")["items"].RemoveAll();
+		}
+	}
 }

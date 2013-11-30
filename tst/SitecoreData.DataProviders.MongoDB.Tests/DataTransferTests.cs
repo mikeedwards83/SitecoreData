@@ -30,21 +30,21 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
 		[Test]
 		public void MongoDbHasItemsCollection()
 		{
-			TransferUtil.TransferPath("/sitecore/layout", _sourceDatabase, _targetDatabase, null);
+			TransferUtil.TransferPath("/sitecore/layout", _sqlServerSourceDb, _mongoTargetDb, null);
 			Assert.That(_db.GetCollectionNames().Contains("items"), Is.True);
 		}
 
 		[Test]
 		public void CanTransferData()
 		{
-			TransferUtil.TransferPath("/sitecore/layout", _sourceDatabase, _targetDatabase, null);
+			TransferUtil.TransferPath("/sitecore/layout", _sqlServerSourceDb, _mongoTargetDb, null);
 			Assert.That(_db.GetCollection("items").Count(), Is.EqualTo(60));
 		}
 
 		[Test]
 		public void CanTransferDeepHierarchy()
 		{
-			TransferUtil.TransferPath("/sitecore/layout/renderings", _sourceDatabase, _targetDatabase, null);
+			TransferUtil.TransferPath("/sitecore/layout/renderings", _sqlServerSourceDb, _mongoTargetDb, null);
 			Assert.That(_db.GetCollection("items").Count(), Is.EqualTo(13));
 		}
 
@@ -61,7 +61,7 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
 			var action = A.Fake<Action<string>>();
 			using (var scope = Fake.CreateScope())
 			{
-				TransferUtil.TransferPath("/sitecore/layout/devices/print", _sourceDatabase, _targetDatabase, action);
+				TransferUtil.TransferPath("/sitecore/layout/devices/print", _sqlServerSourceDb, _mongoTargetDb, action);
 				using (scope.OrderedAssertions())
 				{
 					A.CallTo(() => action.Invoke("/sitecore")).MustHaveHappened(Repeated.Exactly.Once);
@@ -76,8 +76,8 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
 		[Test]
 		public void TranferUtil_WhenTransferingRoot_PopulatesFields()
 		{
-			TransferUtil.TransferPath("/sitecore/content", _sourceDatabase, _targetDatabase, null);
-			Item root = _targetDatabase.GetItem("/sitecore");
+			TransferUtil.TransferPath("/sitecore/content", _sqlServerSourceDb, _mongoTargetDb, null);
+			Item root = _mongoTargetDb.GetItem("/sitecore");
 			Assert.IsNotEmpty(root[Sitecore.FieldIDs.Created]);
 		}
 	}
