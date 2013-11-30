@@ -78,7 +78,7 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
 		{
 			TransferUtil.TransferPath("/sitecore/content", _sourceDatabase, _targetDatabase, null);
 			Item root = _targetDatabase.GetItem("/sitecore");
-			Assert.IsNotEmpty(root["__security"]);
+			Assert.IsNotEmpty(root[Sitecore.FieldIDs.Created]);
 		}
 	}
 }
