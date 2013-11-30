@@ -41,8 +41,6 @@ namespace SitecoreData.DataProviders
             ConnectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
             ImplementationType = implementationType;
 
-            EnsureNotEmpty();
-
         }
 
         protected string ImplementationType { get; set; }
@@ -94,30 +92,7 @@ namespace SitecoreData.DataProviders
             }
         }
 
-        private void EnsureNotEmpty()
-        {
-            var rootItem = Provider.GetItem(new ID("{11111111-1111-1111-1111-111111111111}").ToGuid());
-
-            if (rootItem != null)
-            {
-                return;
-            }
-
-            rootItem = new ItemDto
-                           {
-                               Id = new ID("{11111111-1111-1111-1111-111111111111}").ToGuid(),
-                               Name = "sitecore",
-                               TemplateId = new ID("{C6576836-910C-4A3D-BA03-C277DBD3B827}").ToGuid()
-                           };
-
-            Provider.WritableProvider.Store(rootItem);
-
-            AddVersion(new ItemDefinition(new ID(rootItem.Id), rootItem.Name, new ID(rootItem.TemplateId), ID.Null),
-                       new VersionUri(Language.Parse("en"), Version.First),
-                       null);
-        }
-
-        public override ItemDefinition GetItemDefinition(ID itemId, CallContext context)
+	    public override ItemDefinition GetItemDefinition(ID itemId, CallContext context)
         {
             var prefetchData = GetPrefetchData(itemId);
 
