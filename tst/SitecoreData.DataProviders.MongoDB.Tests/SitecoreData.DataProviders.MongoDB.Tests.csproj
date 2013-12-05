@@ -78,6 +78,7 @@
   <ItemGroup>
     <Compile Include="DataTransferTests.cs" />
     <Compile Include="FastQueryAcceptanceTests.cs" />
+    <Compile Include="ItemManipulationTests.cs" />
     <Compile Include="MongoTestsBase.cs" />
     <Compile Include="QueryParser_Should.cs" />
     <Compile Include="UsingFastQueryWithMongo.cs" />
