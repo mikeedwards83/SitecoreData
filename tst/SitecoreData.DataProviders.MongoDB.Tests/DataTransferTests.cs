@@ -12,7 +12,7 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
 {
 	[TestFixture]
 	[Category("MongoDB Data Transfer Tests")]
-	internal class DataTransferTests : MongoTestsBase
+	internal class DataTransferTests : MongoTestsRefreshDbPerTest
 	{
 
 		[TearDown]

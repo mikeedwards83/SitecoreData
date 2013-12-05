@@ -15,8 +15,8 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
 		protected Database _sqlServerSourceDb;
 		protected Database _mongoTargetDb;
 
-		[SetUp]
-		public void SetupMongoTestDBConnectionAndRemoveAllItems()
+
+		protected void InitializeEnvironment()
 		{
 			Sitecore.Context.IsUnitTesting = true;
 			_mongoTestDbConnectionString = ConfigurationManager.ConnectionStrings["nosqlmongotest"].ConnectionString;
@@ -38,5 +38,18 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
 		{
 			_mongoServer.GetDatabase("test")["items"].RemoveAll();
 		}
+
+	}
+
+	internal abstract class MongoTestsRefreshDbPerTest :MongoTestsBase
+	{
+		[SetUp]
+		public  void Setup() { InitializeEnvironment();}
+	}
+
+	internal abstract class MongoTestsRefreshDbPerFixture : MongoTestsBase
+	{
+		[TestFixtureSetUp]
+		public void Setup() { InitializeEnvironment(); }
 	}
 }
