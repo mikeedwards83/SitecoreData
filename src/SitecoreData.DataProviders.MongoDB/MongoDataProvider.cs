@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Builders;
 using Sitecore;
 using Sitecore.Collections;
 using Sitecore.Data;
+using Sitecore.Diagnostics;
 using Sitecore.Workflows;
 
 namespace SitecoreData.DataProviders.MongoDB
@@ -163,41 +166,199 @@ namespace SitecoreData.DataProviders.MongoDB
         }
 
 
+
         public IDList SelectIds(string query, Sitecore.Data.DataProviders.CallContext callContext)
         {
+            IDList returnList = new IDList();
 
             //fast query 
 
-            if(query.StartsWith("fast:"))
-            {
+            if (query.StartsWith("fast:"))
+			{
                 query = query.Substring(5);
-                var parts = query.Split(new []{'/'}, StringSplitOptions.RemoveEmptyEntries);
-
-                var parentKeys = parts.Reverse().Skip(1);
-
-                var ids = QuerySimple(parts.Last());
-
-                foreach(ID id in ids)
+                if (!query.Contains("*"))
                 {
-                    var item = GetItem(id.Guid);
-                    if(CheckParent(item , parentKeys))
-                    {
-                        return IDList.Build(new []{id});
-                    }
-                    
+                    var id = GetItemFromSimplePath(query);
+                    if (id != Guid.Empty)
+                        returnList.Add(new ID(id));
+                }
+                else if(query.Contains("["))
+                {
+                    List<Guid> guids = GetItemsMatchingPredicate(query);
+                    guids.ForEach(g => returnList.Add(new ID(g)));
+                }
+                else if (query.EndsWith(@"//*"))
+                {
+                    List<Guid> guids = GetMatchingItemsForDescendantPath(query);
+                    guids.ForEach(g => returnList.Add(new ID(g)));
+                }
+                else if (query.EndsWith(@"/*") && !query.Contains(@"//")) 
+                {
+                    List<Guid> guids = GetMatchingItemsForWildcardPath(query);
+                    guids.ForEach(g => returnList.Add(new ID(g)));
                 }
 
-
+                return returnList;
             }
 
+            return null;
+        }
+
+        private List<Guid> GetItemsMatchingPredicate(string query)
+        {
+            string firstPart = query.Substring(0, query.IndexOf("["));
+            List<Guid> baseList = new List<Guid>();
+            if (firstPart.EndsWith(@"//*"))
+            {
+                baseList = GetMatchingItemsForDescendantPath(firstPart);
+            }
+            else if (firstPart.EndsWith(@"/*"))
+            {
+                baseList = GetMatchingItemsForWildcardPath(firstPart);
+            }
+            else
+            {
+                var id = GetItemFromSimplePath(firstPart);
+                if (id != Guid.Empty)
+                {
+                    baseList.Add(id);
+                }
+            }
+
+            var predicate = QueryElementParser.GetPredicate(query);
+
+            if (predicate.Contains("@@id"))
+            {
+                Guid guid = QueryElementParser.GetGuidFromPredicate(predicate);
+                baseList = baseList.Where(i => i == guid).ToList();
+            } else if (predicate.Contains("@@templateid"))
+            {
+                Guid guid = QueryElementParser.GetGuidFromPredicate(predicate);
+                baseList = baseList.Select(GetItem).Where(i => i.TemplateId == guid).Select(i => i.Id).ToList();
+            }
+            else if (predicate.Contains("@@masterid"))
+            {
+                Guid guid = QueryElementParser.GetGuidFromPredicate(predicate);
+                baseList = baseList.Select(GetItem).Where(i => i.BranchId == guid).Select(i => i.Id).ToList();
+            } else if (predicate.Contains("@@parentid"))
+            {
+                Guid guid = QueryElementParser.GetGuidFromPredicate(predicate);
+                baseList = baseList.Select(GetItem).Where(i => i.ParentId == guid).Select(i => i.Id).ToList();
+            }
+            else if (predicate.Contains("@@key"))
+            {
+                String name = QueryElementParser.GetName(predicate);
+                baseList = baseList.Select(GetItem).Where(i => i.Key == name).Select(i => i.Id).ToList();
+            }
+            else if (predicate.Contains("@@name"))
+            {
+                String name = QueryElementParser.GetName(predicate);
+                baseList = baseList.Select(GetItem).Where(i => i.Name == name).Select(i => i.Id).ToList();
+            }
+			else if (predicate.Contains("@@templatename"))
+			{
+				String name = QueryElementParser.GetName(predicate);
+				IEnumerable<ItemDto> templates = GetTemplates();  //TODO Find efficient and reliable way to cache this.
+				IEnumerable<Guid> matchingTemplates = templates.Where(i => i.Name == name).Select(i => i.Id).ToList();
+				baseList = baseList.Select(GetItem).Where(i => matchingTemplates.Contains(i.TemplateId)).Select(i => i.Id).ToList();
+			}
+            return baseList;
+        }
+
+	    private IEnumerable<ItemDto> GetTemplates()
+	    {
+		    return GetTemplatesRecursive(Sitecore.ItemIDs.TemplateRoot.Guid, new List<Guid>()).Select(GetItem).ToList();
+	    }
+
+	    private IEnumerable<Guid> GetTemplatesRecursive(Guid id, IList<Guid> list)
+	    {
+		    ItemDto item = GetItem(id);
+			if (item.TemplateId == Sitecore.TemplateIDs.Template.Guid)
+			{
+				list.Add(item.Id);
+			}
+		    IEnumerable<Guid> children = GetChildrenOfItem(item.Id);
+			foreach (var child in children)
+			{
+				GetTemplatesRecursive(child, list);
+			}
+		    return list;
+	    }
 
 
+	    private List<Guid> GetMatchingItemsForWildcardPath(string query)
+        {
+            string parentPath = query.Substring(0, query.IndexOf(@"/*"));
+            Debug.Assert(query.Length-2 == parentPath.Length, @"Path must end with ""/*""");
+            Guid parentId = GetItemFromSimplePath(parentPath);
+            return GetChildrenOfItem(parentId);
+        }
 
-            
-            
+        private List<Guid> GetMatchingItemsForDescendantPath(string query)
+        {
+            string parentPath = query.Substring(0, query.IndexOf(@"//*"));
+            Debug.Assert(query.Length - 3 == parentPath.Length, @"Path must end with ""//*""");
+            Guid parentId = GetItemFromSimplePath(parentPath);
+            return GetDescendantsOfItem(parentId);
+        }
 
-            //standard query
-           throw new NotImplementedException();
+        private List<Guid> GetChildrenOfItem(Guid parentId)
+        {
+            var itemQuery =
+               from item in Items.AsQueryable()
+               where item.ParentId == parentId 
+                     
+               select item.Id;
+            return itemQuery.ToList();
+        }
+        
+        private List<Guid> GetDescendantsOfItem(Guid parentId)
+        {
+            List<Guid> children = GetChildrenOfItem(parentId);
+            List<Guid> descendants = new List<Guid>(children);
+            foreach (var child in children)
+            {
+                descendants.AddRange(GetDescendantsOfItem(child));
+            }
+            return descendants;
+        }
+
+        private Guid GetItemFromSimplePath(string query)
+        {
+//implement basic path look up (e.g. /sitecore/Layout)
+
+            var parts = query.Split('/').Select(s => s.ToLower()).Skip(1);
+
+            //Note: Sitecore FastQuery paths always begin with the root.
+
+            var parentId = Guid.Empty;
+            foreach (var pathElement in parts)
+            {
+                var pathElementWithoutHashes = StripOffHashes(pathElement);
+                Guid itemId = GetChildItemWithMatchingName(parentId, pathElementWithoutHashes);
+                parentId = itemId;
+            }
+            return parentId;
+        }
+
+        private string StripOffHashes(string pathElement)
+        {
+            if (pathElement.StartsWith("#") && pathElement.EndsWith("#"))
+                return pathElement.Substring(1, pathElement.Length - 2);
+            return pathElement;
+        }
+
+        private Guid GetChildItemWithMatchingName(Guid parentId, string pathElement)
+        {
+            var itemQuery =
+                from item in Items.AsQueryable()
+                where item.ParentId == parentId &&
+                      (item.Key == pathElement || item.Name == pathElement)
+                select item;
+                //TODO Fix data transfer to populate key consistently, and remove "|| item.Name == pathElement" above.
+
+            var itemDto = itemQuery.FirstOrDefault();
+            return itemDto == null ? Guid.Empty : itemDto.Id;
         }
 
         /// <summary>

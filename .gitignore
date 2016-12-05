@@ -1,4 +1,4 @@
-﻿
+
 #################
 ## Visual Studio
 #################
@@ -101,3 +101,8 @@ Thumbs.db
 # Folder config file
 Desktop.ini
 
+SitecoreData.sln.DotSettings
+tst/SitecoreData.DataProviders.MongoDB.Tests/App_Config/ConnectionStrings.config
+*[Nn][Cc]runch*
+tst/SitecoreData.DataProviders.MongoDB.Tests/App_Config/*
+tst/SitecoreData.DataProviders.MongoDB.Tests/temp/*

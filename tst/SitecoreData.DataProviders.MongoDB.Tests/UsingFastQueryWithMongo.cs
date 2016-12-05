@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Sitecore.Data;
@@ -8,6 +7,7 @@ using Sitecore.Data;
 namespace SitecoreData.DataProviders.MongoDB.Tests
 {
     [TestFixture]
+    [Category("MongoDB Fast Query Tests")]
     public class UsingFastQueryWithMongo
     {
         private MongoDataProvider _provider;
@@ -42,7 +42,7 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
 
         }
 
-        [Test]
+        [Test,Ignore]
         public void FastQuery_CanRetrieveChildItems()
         {
             //Assign
@@ -54,7 +54,7 @@ namespace SitecoreData.DataProviders.MongoDB.Tests
             //Assert
         }
 
-        [Test]
+        [Test,Ignore]
         public void FastQuery_CanRetrieveDescendants()
         {
             //Assign
